@@ -18,6 +18,7 @@ class TicTacToePage extends StatefulWidget {
 
 class _TicTacToePageState extends State<TicTacToePage> {
   Widget createIcon(Token t) {
+
     if (t == Token.x) {
       return Icon(
         Icons.close,
@@ -33,22 +34,14 @@ class _TicTacToePageState extends State<TicTacToePage> {
       );
     } else
       return null;
+
+
   }
 
   Color bgColor(int row, int col) {
     return colorBoard[row][col]
         ? Colors.yellow.withOpacity(0.4)
         : Colors.white30;
-  }
-
-  void winnerPopup() {
-    if (winnerCheck(board)) {
-      currentPlayer = "${currentPlayer.substring(7, 9)} Won";
-    } else if (fullBoard(board)) {
-      currentPlayer = "draw";
-    } else {
-      changePlayer(currentPlayer);
-    }
   }
 
   Widget ExpandedBox(int row, int col) {
@@ -58,13 +51,16 @@ class _TicTacToePageState extends State<TicTacToePage> {
         colors: bgColor(row, col),
         onPressed: () {
           updateBox(row, col);
-          setState(() {});
+          setState(() {
+
+
+          });
         },
       ),
     );
   }
 
-  Widget expandedRow(int row) {
+  Widget ExpandedRow(int row) {
     return Expanded(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -109,7 +105,7 @@ class _TicTacToePageState extends State<TicTacToePage> {
               child: Container(
                 alignment: Alignment.topCenter,
                 child: Text(
-                  "$currentPlayer",
+                  getCurrentStatus(),
                   style: TextStyle(
                       fontSize: 25,
                       color: Colors.white.withOpacity(0.6),
@@ -123,9 +119,9 @@ class _TicTacToePageState extends State<TicTacToePage> {
                 margin: EdgeInsets.all(6),
                 child: Column(
                   children: <Widget>[
-                    expandedRow(0),
-                    expandedRow(1),
-                    expandedRow(2),
+                    ExpandedRow(0),
+                    ExpandedRow(1),
+                    ExpandedRow(2),
                   ],
                 ),
               ),
@@ -169,12 +165,12 @@ class _TicTacToePageState extends State<TicTacToePage> {
 
   void updateBox(int r, int c) {
     if (legitMove(board[r][c])) {
-      if (currentPlayer == 'Player X Move') {
+      if (currentPlayer == Token.x) {
         board[r][c] = Token.x;
       } else {
         board[r][c] = Token.o;
       }
-      winnerPopup();
+      nextTurn();
     }
   }
 }
@@ -190,20 +186,20 @@ class OneBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      child: FlatButton(
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        alignment: Alignment.center,
         child: AnimatedOpacity(
             duration: Duration(milliseconds: 600),
             opacity: buttonChild == null ? 0.0 : 1.0,
             child: buttonChild),
-        onPressed: onPressed,
-      ),
-      margin: EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: colors,
-        borderRadius: BorderRadius.all(
-          Radius.circular(14),
+        margin: EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: colors,
+          borderRadius: BorderRadius.all(
+            Radius.circular(14),
+          ),
         ),
       ),
     );

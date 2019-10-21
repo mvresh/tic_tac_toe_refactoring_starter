@@ -12,20 +12,20 @@ bool legitMove(Token t) {
   return t == null && !winnerCheck(board);
 }
 
-String currentPlayer = 'Player X Move';
+Token currentPlayer = Token.x;
 
-changePlayer(String x) {
-  if (x == 'Player X Move') {
-    currentPlayer = 'Player O Move';
-  } else if (x == 'Player O Move') {
-    currentPlayer = 'Player X Move';
+changePlayer(Token player) {
+  if (player == Token.x) {
+    currentPlayer = Token.o;
+  } else if (player == Token.o) {
+    currentPlayer = Token.x;
   }
 }
 
 void gameReset() {
   board = List.generate(3, (_) => List.filled(3,null));
   colorBoard = List.generate(3, (_) => List.filled(3,false));
-  currentPlayer = 'Player X Move';
+  currentPlayer = Token.x;
 }
 bool fullBoard(List<List<Token>> board) {
 
@@ -106,4 +106,40 @@ bool winnerCheck(List<List<Token>> board) {
   } else {
     return false;
   }
+}
+
+void nextTurn() {
+//    if (winnerCheck(board)) {
+//      //currentPlayer = "${currentPlayer.substring(7, 9)} Won";
+//    } else if (fullBoard(board)) {
+//      //currentPlayer = "draw";
+//    } else {
+//      changePlayer(currentPlayer);
+//    }
+
+  if(!winnerCheck(board) && !fullBoard(board)){
+    changePlayer(currentPlayer);
+  }
+}
+
+
+// X's move
+//O's move
+//draw
+// X won
+// O won
+
+String getCurrentStatus(){
+  if(!winnerCheck(board) && !fullBoard(board)){
+    return currentPlayer == Token.x ? "Player X move" : "Player O move";
+  }
+
+  if(winnerCheck(board)){
+    return currentPlayer == Token.x? "X won" : "O won";
+  }
+
+  if(fullBoard(board)){
+    return "draw";
+  }
+
 }
