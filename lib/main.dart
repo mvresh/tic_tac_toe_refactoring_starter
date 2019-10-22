@@ -16,9 +16,9 @@ class TicTacToePage extends StatefulWidget {
   _TicTacToePageState createState() => _TicTacToePageState();
 }
 
-class _TicTacToePageState extends State<TicTacToePage> {
+class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProviderStateMixin {
+  AnimationController textAnimationController;
   Widget createIcon(Token t) {
-
     if (t == Token.x) {
       return Icon(
         Icons.close,
@@ -34,8 +34,6 @@ class _TicTacToePageState extends State<TicTacToePage> {
       );
     } else
       return null;
-
-
   }
 
   Color bgColor(int row, int col) {
@@ -52,9 +50,10 @@ class _TicTacToePageState extends State<TicTacToePage> {
         onPressed: () {
           updateBox(row, col);
           setState(() {
-
-
+            if(getCurrentStatus() == 'X won' || getCurrentStatus() == 'O won'){
+              textAnimationController.forward();}
           });
+          // print(controller.status);
         },
       ),
     );
@@ -75,6 +74,24 @@ class _TicTacToePageState extends State<TicTacToePage> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    textAnimationController = AnimationController(duration: Duration(milliseconds: 1000),vsync: this);
+
+    textAnimationController.addStatusListener((AnimationStatus status){
+      if(status == AnimationStatus.completed){
+        textAnimationController.reverse();
+
+      }
+      else if (status == AnimationStatus.dismissed){
+        textAnimationController.forward();
+
+      }
+    });
+
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFD6AA7C),
@@ -82,8 +99,7 @@ class _TicTacToePageState extends State<TicTacToePage> {
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage('assets/purple.jpg'),
-                fit: BoxFit.cover)),
+                image: AssetImage('assets/purple.jpg'), fit: BoxFit.cover)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -104,13 +120,21 @@ class _TicTacToePageState extends State<TicTacToePage> {
               flex: 1,
               child: Container(
                 alignment: Alignment.topCenter,
-                child: Text(
-                  getCurrentStatus(),
-                  style: TextStyle(
-                      fontSize: 25,
-                      color: Colors.white.withOpacity(0.6),
-                      fontFamily: 'Quicksand'),
-                ),
+                child: getCurrentStatus() == 'X won' || getCurrentStatus() == 'O won'? ScaleTransition(
+                  scale: Tween(begin: 1.5,end: 3.0).animate(textAnimationController),
+                  child: Text(
+                    getCurrentStatus(),
+                    style: TextStyle(
+                        fontSize: 25,
+                        color: Colors.yellow.withOpacity(0.6),
+                        fontFamily: 'Quicksand'),
+                  )) : Text(
+                    getCurrentStatus(),
+                    style: TextStyle(
+                        fontSize: 25,
+                        color: Colors.white.withOpacity(0.6),
+                        fontFamily: 'Quicksand'),
+                  ),
               ),
             ),
             Expanded(
@@ -146,7 +170,7 @@ class _TicTacToePageState extends State<TicTacToePage> {
                         },
                         child: Text("Reset",
                             style:
-                            TextStyle(fontSize: 25, color: Colors.white)),
+                                TextStyle(fontSize: 25, color: Colors.white)),
                       ),
                     ),
                   ),
@@ -175,28 +199,56 @@ class _TicTacToePageState extends State<TicTacToePage> {
   }
 }
 
-class OneBox extends StatelessWidget {
+class OneBox extends StatefulWidget {
   final Widget buttonChild;
   final Function onPressed;
   final Color colors;
+
   OneBox(
       {this.buttonChild = const Text(''),
-        this.onPressed,
-        this.colors = Colors.white24});
+      this.onPressed,
+      this.colors = Colors.white24});
+
+  @override
+  _OneBoxState createState() => _OneBoxState();
+}
+
+class _OneBoxState extends State<OneBox> with SingleTickerProviderStateMixin {
+  AnimationController controller;
+
+  @override
+  void initState() {
+    controller = AnimationController(
+        value: 0.0, duration: Duration(milliseconds: 1000), vsync: this);
+    //print(controller.status);
+    controller.addListener(() {
+      setState(() {});
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    CurvedAnimation smoothAnimation =
+        CurvedAnimation(parent: controller, curve: Curves.bounceOut);
+    //print(controller.status);
     return GestureDetector(
-      onTap: onPressed,
+      onTap: () {
+        //print(controller.status);
+        widget.onPressed();
+        controller.forward();
+      },
       child: Container(
         alignment: Alignment.center,
-        child: AnimatedOpacity(
-            duration: Duration(milliseconds: 600),
-            opacity: buttonChild == null ? 0.0 : 1.0,
-            child: buttonChild),
+        child: FadeTransition(
+          opacity: controller,
+          child: Transform.scale(
+              scale: Tween(begin: 5.0, end: 1.0).transform(smoothAnimation.value),
+              child: widget.buttonChild),
+        ),
         margin: EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: colors,
+          color: widget.colors,
           borderRadius: BorderRadius.all(
             Radius.circular(14),
           ),
