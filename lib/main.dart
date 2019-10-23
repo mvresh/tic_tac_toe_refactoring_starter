@@ -89,6 +89,10 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
       }
     });
 
+    textAnimationController.addListener(() {
+      setState(() {});
+    });
+
     super.initState();
   }
   @override
@@ -120,13 +124,13 @@ class _TicTacToePageState extends State<TicTacToePage> with SingleTickerProvider
               flex: 1,
               child: Container(
                 alignment: Alignment.topCenter,
-                child: getCurrentStatus() == 'X won' || getCurrentStatus() == 'O won'? ScaleTransition(
-                  scale: Tween(begin: 1.5,end: 3.0).animate(textAnimationController),
+                child: getCurrentStatus() == 'X won' || getCurrentStatus() == 'O won'? Transform.scale(
+                  scale: Tween(begin: 1.5,end: 3.0).transform(textAnimationController.value),
                   child: Text(
                     getCurrentStatus(),
                     style: TextStyle(
                         fontSize: 25,
-                        color: Colors.yellow.withOpacity(0.6),
+                        color: ColorTween(begin: Colors.white,end:Colors.yellow).transform(textAnimationController.value),
                         fontFamily: 'Quicksand'),
                   )) : Text(
                     getCurrentStatus(),
